@@ -1,0 +1,34 @@
+services:
+
+  fastapi:
+    build: ./FASTAPI
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - localstack
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack_main
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,ec2,cloudwatch
+      - DEBUG=1
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
